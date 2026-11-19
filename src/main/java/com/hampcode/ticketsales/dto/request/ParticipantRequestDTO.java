@@ -1,0 +1,9 @@
+package com.hampcode.ticketsales.dto.request;
+
+import jakarta.validation.constraints.*;
+
+public record ParticipantRequestDTO(
+        @NotBlank String name,
+        @NotBlank String documentId,
+        @NotBlank @Email String email,
+        String phone) {}

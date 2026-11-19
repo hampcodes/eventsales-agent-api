@@ -1,0 +1,79 @@
+server:
+  port: ${PORT:8080}   # Render define PORT; en local se usa 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: event_db
+  # Lee el archivo .env de la carpeta donde se ejecuta la app (solo local).
+  # "optional:" evita el error si no existe: en Render se usan las variables de entorno reales.
+  config:
+    import: optional:file:.env[.properties]
+  ai:
+    openai:
+      api-key: ${AI_API_KEY}
+      base-url: https://api.openai.com/v1
+      chat:
+          model: gpt-4.1-mini
+          temperature: 0
+      embedding:
+        model: text-embedding-3-small
+      audio:
+        transcription:
+          model: whisper-1
+          language: es
+        speech:
+          model: gpt-4o-mini-tts
+          voice: alloy
+          response-format: mp3
+          instructions: "Habla en español latinoamericano neutro, con ritmo natural y un tono cercano y amable."
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        dimensions: 1536
+        distance-type: COSINE_DISTANCE
+        index-type: HNSW
+  jpa:
+    database: postgresql
+    show-sql: false
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}   # update conserva los datos; create BORRA las tablas en cada arranque
+    # data.sql se ejecuta DESPUÉS de que Hibernate crea las tablas
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always   # ejecuta data.sql en cada arranque (los INSERT no duplican datos)
+      encoding: UTF-8
+  servlet:
+    multipart:
+      max-file-size: 5MB   # por defecto es 1 MB: una foto normal no cabría
+      max-request-size: 5MB
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      # Supabase (Session pooler) permite 15 conexiones en total: un pool pequeño evita agotarlas
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+    # Los valores salen del .env (local) o de las variables de entorno (Render)
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/event_sales}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}   # sin valor por defecto: si falta, la app no arranca
+
+app:
+  voice:
+    enabled: ${VOICE_ENABLED:true}
+  # --- Supabase Storage (imágenes): Project URL, secret key y nombre del bucket ---
+  supabase:
+    url: ${SUPABASE_URL:}   # vacío en local: solo la subida de imágenes necesita estos dos valores
+    secret-key: ${SUPABASE_SECRET_KEY:}
+    bucket: ${SUPABASE_BUCKET:event-images}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://localhost:56791}
+  security:
+    jwt-secret: ${JWT_SECRET}   # sin valor por defecto: si falta, la app no arranca
+    jwt-expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}

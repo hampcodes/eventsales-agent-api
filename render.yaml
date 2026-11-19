@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: eventsales-agent-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/home
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION_MINUTES
+        value: "60"
+      - key: SUPABASE_BUCKET
+        value: event-images
+      - key: CORS_ORIGINS
+        value: https://eventsales-agent-web.onrender.com
+      - key: DDL_AUTO
+        value: update
+      - key: DB_POOL_SIZE
+        value: "5"
+      - key: VOICE_ENABLED
+        value: "true"
+      - key: JAVA_TOOL_OPTIONS
+        value: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC"
