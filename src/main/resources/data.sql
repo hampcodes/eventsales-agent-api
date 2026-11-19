@@ -1,62 +1,49 @@
 -- Datos de prueba: se ejecutan en cada arranque de la API (spring.sql.init.mode: always).
 -- Cada INSERT pregunta primero si el dato ya existe, asi que repetirlos no duplica nada.
--- Todos los usuarios tienen la clave: clave1234 (guardada cifrada con BCrypt).
---
--- Organizadores : organizador1@eventos.com, organizador2@eventos.com
--- Participantes : participante1@mail.com, participante2@mail.com, participante3@mail.com
+-- Las claves de las cuentas de demostracion no se escriben aqui: solo su hash BCrypt.
 
 -- ============ USUARIOS (credenciales y rol) ============
 INSERT INTO users (email, password, role)
-SELECT 'organizador1@eventos.com', '$2a$10$gvBWrfafSebAiMqhMSpCPuFHFOz5MGHP5k6Cb3FenxTPRtFSFlG/O', 'ORGANIZER'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'organizador1@eventos.com');
+SELECT 'marcela.quispe@eventoslima.example', '$2a$10$waF.MuAzqenAjhg9DWZLqudc7kGLzLV98DRe/pEsjGiqEtHW4chS2', 'ORGANIZER'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'marcela.quispe@eventoslima.example');
 
 INSERT INTO users (email, password, role)
-SELECT 'organizador2@eventos.com', '$2a$10$gvBWrfafSebAiMqhMSpCPuFHFOz5MGHP5k6Cb3FenxTPRtFSFlG/O', 'ORGANIZER'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'organizador2@eventos.com');
+SELECT 'jorge.salazar@andinas.example', '$2a$10$ZdCRkrdHHj2f/sMBNhV3X.rQAEj8uMDjuIkNwkngHDDzlKzjB9/dO', 'ORGANIZER'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'jorge.salazar@andinas.example');
 
 INSERT INTO users (email, password, role)
-SELECT 'participante1@mail.com', '$2a$10$gvBWrfafSebAiMqhMSpCPuFHFOz5MGHP5k6Cb3FenxTPRtFSFlG/O', 'PARTICIPANT'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'participante1@mail.com');
+SELECT 'henry.mendoza@eventsales.example', '$2a$10$RujZDdQ98M/.Fk8DDyZ.UOuYQGeMhjUfvkdPGcNYIuLkD9zvlAPTy', 'PARTICIPANT'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'henry.mendoza@eventsales.example');
 
 INSERT INTO users (email, password, role)
-SELECT 'participante2@mail.com', '$2a$10$gvBWrfafSebAiMqhMSpCPuFHFOz5MGHP5k6Cb3FenxTPRtFSFlG/O', 'PARTICIPANT'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'participante2@mail.com');
-
-INSERT INTO users (email, password, role)
-SELECT 'participante3@mail.com', '$2a$10$gvBWrfafSebAiMqhMSpCPuFHFOz5MGHP5k6Cb3FenxTPRtFSFlG/O', 'PARTICIPANT'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'participante3@mail.com');
+SELECT 'lucia.paredes@eventsales.example', '$2a$10$inEDs5x4eoxPQuj7iUwOSesp.s35kv7/czSaEIaryl.N/tCx57VUC', 'PARTICIPANT'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'lucia.paredes@eventsales.example');
 
 -- ============ ORGANIZADORES (perfil) ============
 INSERT INTO organizers (user_id, name, document_id, email, phone, website)
-SELECT u.id, 'Eventos Lima SAC', '20512345678', 'organizador1@eventos.com', '014567890', 'https://eventoslima.example.com'
+SELECT u.id, 'Eventos Lima SAC', '20512345678', 'marcela.quispe@eventoslima.example', '014567890', 'https://eventoslima.example.com'
 FROM users u
-WHERE u.email = 'organizador1@eventos.com'
+WHERE u.email = 'marcela.quispe@eventoslima.example'
   AND NOT EXISTS (SELECT 1 FROM organizers WHERE document_id = '20512345678');
 
 INSERT INTO organizers (user_id, name, document_id, email, phone, website)
-SELECT u.id, 'Producciones Andinas', '20598765432', 'organizador2@eventos.com', '084123456', 'https://andinas.example.com'
+SELECT u.id, 'Producciones Andinas', '20598765432', 'jorge.salazar@andinas.example', '084123456', 'https://andinas.example.com'
 FROM users u
-WHERE u.email = 'organizador2@eventos.com'
+WHERE u.email = 'jorge.salazar@andinas.example'
   AND NOT EXISTS (SELECT 1 FROM organizers WHERE document_id = '20598765432');
 
 -- ============ PARTICIPANTES (perfil) ============
 INSERT INTO participants (user_id, name, document_id, email, phone)
-SELECT u.id, 'Carlos Ramirez Soto', '70123456', 'participante1@mail.com', '987654321'
+SELECT u.id, 'Henry Antonio Mendoza Puerta', '70123456', 'henry.mendoza@eventsales.example', '987654321'
 FROM users u
-WHERE u.email = 'participante1@mail.com'
+WHERE u.email = 'henry.mendoza@eventsales.example'
   AND NOT EXISTS (SELECT 1 FROM participants WHERE document_id = '70123456');
 
 INSERT INTO participants (user_id, name, document_id, email, phone)
-SELECT u.id, 'Maria Torres Vega', '70234567', 'participante2@mail.com', '987111222'
+SELECT u.id, 'Lucia Paredes Rojas', '70234567', 'lucia.paredes@eventsales.example', '987111222'
 FROM users u
-WHERE u.email = 'participante2@mail.com'
+WHERE u.email = 'lucia.paredes@eventsales.example'
   AND NOT EXISTS (SELECT 1 FROM participants WHERE document_id = '70234567');
-
-INSERT INTO participants (user_id, name, document_id, email, phone)
-SELECT u.id, 'Luis Fernandez Diaz', '70345678', 'participante3@mail.com', '987333444'
-FROM users u
-WHERE u.email = 'participante3@mail.com'
-  AND NOT EXISTS (SELECT 1 FROM participants WHERE document_id = '70345678');
 
 -- ============ CATEGORIAS ============
 -- name es unico: ON CONFLICT DO NOTHING evita duplicados. Van antes que los eventos.
