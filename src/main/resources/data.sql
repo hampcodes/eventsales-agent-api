@@ -65,10 +65,10 @@ INSERT INTO categories (name) VALUES ('Gastronomia') ON CONFLICT (name) DO NOTHI
 INSERT INTO categories (name) VALUES ('Teatro') ON CONFLICT (name) DO NOTHING;
 
 -- ============ EVENTOS ============
--- available_capacity = capacity_max menos las entradas que se siembran mas abajo
+-- No se siembran entradas ni pagos: available_capacity = capacity_max
 -- category_id apunta a una categoria sembrada arriba (Teatro queda sin eventos)
 INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
-SELECT o.id, 'Festival de Rock Lima', CURRENT_DATE + 30, 'Lima', 200, 198, 120.00,
+SELECT o.id, 'Festival de Rock Lima', CURRENT_DATE + 30, 'Lima', 200, 200, 120.00,
        'https://picsum.photos/seed/festival-rock/800/450',
        (SELECT c.id FROM categories c WHERE c.name = 'Musica')
 FROM organizers o
@@ -84,7 +84,7 @@ WHERE o.document_id = '20512345678'
   AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Concierto Sinfonico Arequipa');
 
 INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
-SELECT o.id, 'Feria Gastronomica Cusco', CURRENT_DATE + 60, 'Cusco', 150, 149, 35.00,
+SELECT o.id, 'Feria Gastronomica Cusco', CURRENT_DATE + 60, 'Cusco', 150, 150, 35.00,
        'https://picsum.photos/seed/feria-gastronomica/800/450',
        (SELECT c.id FROM categories c WHERE c.name = 'Gastronomia')
 FROM organizers o
@@ -100,38 +100,67 @@ WHERE image_url = 'https://img.example.com/sinfonico.jpg';
 UPDATE events SET image_url = 'https://picsum.photos/seed/feria-gastronomica/800/450'
 WHERE image_url = 'https://img.example.com/feria-gastronomica.jpg';
 
--- ============ ENTRADAS ============
-INSERT INTO tickets (event_id, participant_id, price_paid, status)
-SELECT e.id, p.id, e.base_price, 'PAID'
-FROM events e, participants p
-WHERE e.name = 'Festival de Rock Lima' AND p.document_id = '70123456'
-  AND NOT EXISTS (SELECT 1 FROM tickets t WHERE t.event_id = e.id AND t.participant_id = p.id);
+-- ============ MAS EVENTOS ============
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'Obra La Casa de Bernarda Alba', CURRENT_DATE + 20, 'Lima', 120, 120, 55.00,
+       'https://picsum.photos/seed/obra-bernarda/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Teatro')
+FROM organizers o
+WHERE o.document_id = '20512345678'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Obra La Casa de Bernarda Alba');
 
-INSERT INTO tickets (event_id, participant_id, price_paid, status)
-SELECT e.id, p.id, e.base_price, 'PENDING'
-FROM events e, participants p
-WHERE e.name = 'Festival de Rock Lima' AND p.document_id = '70234567'
-  AND NOT EXISTS (SELECT 1 FROM tickets t WHERE t.event_id = e.id AND t.participant_id = p.id);
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'Stand Up Peruano en Lima', CURRENT_DATE + 25, 'Lima', 90, 90, 45.00,
+       'https://picsum.photos/seed/standup/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Teatro')
+FROM organizers o
+WHERE o.document_id = '20512345678'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Stand Up Peruano en Lima');
 
-INSERT INTO tickets (event_id, participant_id, price_paid, status)
-SELECT e.id, p.id, e.base_price, 'PAID'
-FROM events e, participants p
-WHERE e.name = 'Feria Gastronomica Cusco' AND p.document_id = '70345678'
-  AND NOT EXISTS (SELECT 1 FROM tickets t WHERE t.event_id = e.id AND t.participant_id = p.id);
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'El Principito para Ninos', CURRENT_DATE + 40, 'Arequipa', 100, 100, 30.00,
+       'https://picsum.photos/seed/principito/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Teatro')
+FROM organizers o
+WHERE o.document_id = '20598765432'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'El Principito para Ninos');
 
--- ============ PAGOS (solo de las entradas PAID) ============
-INSERT INTO payments (ticket_id, amount, method, status)
-SELECT t.id, t.price_paid, 'YAPE', 'APPROVED'
-FROM tickets t
-JOIN events e ON e.id = t.event_id
-JOIN participants p ON p.id = t.participant_id
-WHERE e.name = 'Festival de Rock Lima' AND p.document_id = '70123456'
-  AND NOT EXISTS (SELECT 1 FROM payments pay WHERE pay.ticket_id = t.id);
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'Noche de Cumbia en Piura', CURRENT_DATE + 35, 'Piura', 300, 300, 45.00,
+       'https://picsum.photos/seed/cumbia-piura/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Musica')
+FROM organizers o
+WHERE o.document_id = '20598765432'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Noche de Cumbia en Piura');
 
-INSERT INTO payments (ticket_id, amount, method, status)
-SELECT t.id, t.price_paid, 'TARJETA', 'APPROVED'
-FROM tickets t
-JOIN events e ON e.id = t.event_id
-JOIN participants p ON p.id = t.participant_id
-WHERE e.name = 'Feria Gastronomica Cusco' AND p.document_id = '70345678'
-  AND NOT EXISTS (SELECT 1 FROM payments pay WHERE pay.ticket_id = t.id);
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'Concierto de Salsa Chiclayo', CURRENT_DATE + 50, 'Chiclayo', 220, 220, 70.00,
+       'https://picsum.photos/seed/salsa-chiclayo/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Musica')
+FROM organizers o
+WHERE o.document_id = '20512345678'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Concierto de Salsa Chiclayo');
+
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'Festival de Folklore Puno', CURRENT_DATE + 70, 'Puno', 400, 400, 25.00,
+       'https://picsum.photos/seed/folklore-puno/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Musica')
+FROM organizers o
+WHERE o.document_id = '20598765432'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Festival de Folklore Puno');
+
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'Expo Cevicheria Lima', CURRENT_DATE + 55, 'Lima', 400, 400, 40.00,
+       'https://picsum.photos/seed/expo-cevicheria/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Gastronomia')
+FROM organizers o
+WHERE o.document_id = '20512345678'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Expo Cevicheria Lima');
+
+INSERT INTO events (organizer_id, name, date, city, capacity_max, available_capacity, base_price, image_url, category_id)
+SELECT o.id, 'Festival del Pisco Ica', CURRENT_DATE + 65, 'Ica', 250, 250, 50.00,
+       'https://picsum.photos/seed/pisco-ica/800/450',
+       (SELECT c.id FROM categories c WHERE c.name = 'Gastronomia')
+FROM organizers o
+WHERE o.document_id = '20598765432'
+  AND NOT EXISTS (SELECT 1 FROM events WHERE name = 'Festival del Pisco Ica');
