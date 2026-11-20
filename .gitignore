@@ -4,3 +4,6 @@
 # Compilación e IDE
 target/
 .idea/
+
+# macOS
+.DS_Store
