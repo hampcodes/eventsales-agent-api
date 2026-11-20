@@ -24,7 +24,7 @@ services:
       - key: SUPABASE_BUCKET
         value: event-images
       - key: CORS_ORIGINS
-        value: https://eventsales-agent.netlify.app,https://eventsales-agent-web.onrender.com
+        value: https://eventsales-agent.netlify.app
       - key: DDL_AUTO
         value: update
       - key: DB_POOL_SIZE
