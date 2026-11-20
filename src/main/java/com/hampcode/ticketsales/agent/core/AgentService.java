@@ -34,6 +34,9 @@ public class AgentService {
     private final ConversationService conversationService;
     private final List<AgentDefinition> definitions;
 
+    // Si el enrutador duda, atiende el agente sin tools
+    private static final String FALLBACK = "guard";
+
     private final Map<String, AgentDefinition> agents = new LinkedHashMap<>();
     private final Map<String, String> routes = new LinkedHashMap<>();
     private ChatClient chatClient;
@@ -51,7 +54,7 @@ public class AgentService {
     public AgentResponse chat(String userName, Set<String> roles, String message, String conversationId) {
         var conversation = conversationService.open(userName, conversationId, message);
 
-        String name = routingWorkflow.route(message, routes, definitions.get(0).name());
+        String name = routingWorkflow.route(message, routes, FALLBACK);
         var agent = agents.get(name);
         if (agent.requiredRole() != null && !roles.contains(agent.requiredRole())) {
             return AgentResponse.onlyMessage(conversation.getId(), "Esa opción no está disponible para tu rol.");

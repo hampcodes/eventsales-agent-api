@@ -41,7 +41,7 @@ public class VoiceController {
         if (audio.isEmpty()) throw new InvalidRequestException("No llegó ningún audio");
 
         String transcript = voiceService.transcribe(audio.getBytes(), audio.getOriginalFilename());
-        if (transcript.isBlank()) throw new InvalidRequestException("No pude entender el audio, intenta de nuevo");
+        if (VoiceService.isNoise(transcript)) throw new InvalidRequestException("No pude entender el audio, intenta de nuevo");
 
         AgentResponse response = purchaseTools.hasPending(auth.getName())
                 ? AgentResponse.onlyMessage(conversationId, PENDING_PURCHASE_MESSAGE)

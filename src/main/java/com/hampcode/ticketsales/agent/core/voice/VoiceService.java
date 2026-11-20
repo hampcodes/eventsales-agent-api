@@ -17,6 +17,15 @@ public class VoiceService {
     private final TranscriptionModel transcriptionModel;
     private final TextToSpeechModel textToSpeechModel;
 
+    // Whisper inventa estas frases cuando recibe silencio o ruido
+    private static final java.util.List<String> NOISE = java.util.List.of(
+            "amara.org", "subtítulos realizados por", "subtitulos realizados por", "gracias por ver", "suscríbete");
+
+    public static boolean isNoise(String transcript) {
+        String text = transcript == null ? "" : transcript.toLowerCase();
+        return text.isBlank() || NOISE.stream().anyMatch(text::contains);
+    }
+
     public String transcribe(byte[] audio, String fileName) {
         String name = fileName == null || fileName.isBlank() ? DEFAULT_FILE_NAME : fileName;
         var resource = new ByteArrayResource(audio) {
