@@ -2,7 +2,7 @@ services:
   - type: web
     name: eventsales-agent-api
     runtime: docker
-    plan: starter
+    plan: standard
     healthCheckPath: /api/home
     envVars:
       - key: DB_URL
