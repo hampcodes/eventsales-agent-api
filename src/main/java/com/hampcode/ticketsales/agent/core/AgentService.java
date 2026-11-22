@@ -69,7 +69,7 @@ public class AgentService {
         if (agent.tools().length > 0) request.tools(agent.tools());
         if (agent.usesPdfs()) request.advisors(knowledgeAdvisor);
 
-        return data.toResponse(conversation.getId(), request.call().content());
+        return data.toResponse(conversation.getId(), OutputGuard.clean(request.call().content()));
     }
 
     private static String prompt(String name) {
