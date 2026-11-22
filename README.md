@@ -11,6 +11,6 @@ Elaborado por Henry Antonio Mendoza Puerta by hampcode. Proyecto académico.
 
 ## Desplegar en Render
 
-El archivo `render.yaml` define el servicio (Docker, plan gratuito). Las claves se piden al crear el Blueprint y nunca se guardan en el repositorio.
+El archivo `render.yaml` define el servicio (Docker, plan Starter). Las claves se piden al crear el Blueprint y nunca se guardan en el repositorio.
 
 La guía del módulo del agente está en `AGENTE.md`.
