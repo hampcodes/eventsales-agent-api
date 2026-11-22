@@ -59,6 +59,7 @@ spring:
     hikari:
       # Supabase (Session pooler) permite 15 conexiones en total: un pool pequeño evita agotarlas
       maximum-pool-size: ${DB_POOL_SIZE:5}
+      connection-timeout: 8000   # si no hay conexión libre falla en 8 s (antes 30 s) y no acumula peticiones colgadas
     # Los valores salen del .env (local) o de las variables de entorno (Render)
     url: ${DB_URL:jdbc:postgresql://localhost:5432/event_sales}
     username: ${DB_USERNAME:postgres}

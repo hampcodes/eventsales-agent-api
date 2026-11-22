@@ -33,6 +33,7 @@ public class AgentService {
     private final RoutingWorkflow routingWorkflow;
     private final ConversationService conversationService;
     private final List<AgentDefinition> definitions;
+    private final AgentLimiter limiter;
 
     // Si el enrutador duda, atiende el agente sin tools
     private static final String FALLBACK = "guard";
@@ -52,6 +53,10 @@ public class AgentService {
     }
 
     public AgentResponse chat(String userName, Set<String> roles, String message, String conversationId) {
+        return limiter.runAgent(userName, () -> doChat(userName, roles, message, conversationId));
+    }
+
+    private AgentResponse doChat(String userName, Set<String> roles, String message, String conversationId) {
         var conversation = conversationService.open(userName, conversationId, message);
 
         String name = InputGuard.isOffTopic(message) ? FALLBACK : routingWorkflow.route(message, routes, FALLBACK);

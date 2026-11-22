@@ -48,6 +48,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTooMany(TooManyRequestsException ex) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()

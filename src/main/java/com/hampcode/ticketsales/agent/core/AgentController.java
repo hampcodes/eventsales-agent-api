@@ -22,6 +22,7 @@ public class AgentController {
 
     private final AgentService agentService;
     private final ConversationService conversationService;
+    private final AgentLimiter limiter;
 
     @PostMapping("/chat")
     public AgentResponse chat(@Valid @RequestBody ChatRequest request, Authentication auth) {
@@ -30,11 +31,13 @@ public class AgentController {
 
     @GetMapping("/conversations")
     public List<ConversationSummary> conversations(Authentication auth) {
+        limiter.checkHistory(auth.getName());
         return conversationService.list(auth.getName());
     }
 
     @GetMapping("/conversations/{id}/messages")
     public List<HistoryMessage> messages(@PathVariable String id, Authentication auth) {
+        limiter.checkHistory(auth.getName());
         return conversationService.messages(auth.getName(), id);
     }
 
