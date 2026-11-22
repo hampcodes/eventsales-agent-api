@@ -13,16 +13,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AgentLimiterTest {
 
     @Test
-    void bloqueaLaRafagaDeUnMismoUsuarioYLiberaDespuesDeUnMinuto() {
+    void frenaLaRafagaCorta() {
         var limiter = new AgentLimiter();
         var now = new AtomicLong(1_000);
         limiter.clock = now::get;
 
-        for (int i = 0; i < AgentLimiter.AGENT_CALLS_PER_MINUTE; i++) assertEquals("ok", limiter.runAgent("3", () -> "ok"));
+        for (int i = 0; i < AgentLimiter.BURST_AGENT_CALLS; i++) assertEquals("ok", limiter.runAgent("3", () -> "ok"));
         assertThrows(TooManyRequestsException.class, () -> limiter.runAgent("3", () -> "ok"));
         assertEquals("ok", limiter.runAgent("4", () -> "ok"));
 
-        now.addAndGet(61_000);
+        now.addAndGet(11_000);
+        assertEquals("ok", limiter.runAgent("3", () -> "ok"));
+    }
+
+    @Test
+    void aplicaElLimitePorHoraYLoLiberaAlPasarLaHora() {
+        var limiter = new AgentLimiter();
+        var now = new AtomicLong(1_000);
+        limiter.clock = now::get;
+
+        for (int i = 0; i < AgentLimiter.AGENT_CALLS_PER_HOUR; i++) {
+            now.addAndGet(11_000);
+            assertEquals("ok", limiter.runAgent("3", () -> "ok"));
+        }
+        now.addAndGet(11_000);
+        assertThrows(TooManyRequestsException.class, () -> limiter.runAgent("3", () -> "ok"));
+
+        now.addAndGet(3_600_000);
         assertEquals("ok", limiter.runAgent("3", () -> "ok"));
     }
 
@@ -53,7 +70,11 @@ class AgentLimiterTest {
     @Test
     void elHistorialTieneUnLimiteMasAmplio() {
         var limiter = new AgentLimiter();
-        for (int i = 0; i < AgentLimiter.HISTORY_CALLS_PER_MINUTE; i++) limiter.checkHistory("3");
+        var now = new AtomicLong(1_000);
+        limiter.clock = now::get;
+        for (int i = 0; i < AgentLimiter.BURST_HISTORY_CALLS; i++) limiter.checkHistory("3");
         assertThrows(TooManyRequestsException.class, () -> limiter.checkHistory("3"));
+        now.addAndGet(11_000);
+        limiter.checkHistory("3");
     }
 }
