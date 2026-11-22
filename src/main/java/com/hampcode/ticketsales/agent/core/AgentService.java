@@ -54,7 +54,7 @@ public class AgentService {
     public AgentResponse chat(String userName, Set<String> roles, String message, String conversationId) {
         var conversation = conversationService.open(userName, conversationId, message);
 
-        String name = routingWorkflow.route(message, routes, FALLBACK);
+        String name = InputGuard.isOffTopic(message) ? FALLBACK : routingWorkflow.route(message, routes, FALLBACK);
         var agent = agents.get(name);
         if (agent.requiredRole() != null && !roles.contains(agent.requiredRole())) {
             return AgentResponse.onlyMessage(conversation.getId(), "Esa opción no está disponible para tu rol.");
