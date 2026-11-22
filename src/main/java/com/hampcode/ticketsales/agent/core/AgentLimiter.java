@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 @Component
 public class AgentLimiter {
 
-    static final int AGENT_CALLS_PER_HOUR = 60;
+    static final int AGENT_CALLS_PER_HOUR = 10;
     static final int HISTORY_CALLS_PER_HOUR = 300;
     static final int BURST_AGENT_CALLS = 5;
     static final int BURST_HISTORY_CALLS = 20;
