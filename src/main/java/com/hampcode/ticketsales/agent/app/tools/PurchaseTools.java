@@ -47,10 +47,7 @@ public class PurchaseTools {
         return "Pendiente de confirmación: entrada para " + event.name() + " por S/ " + event.basePrice();
     }
 
-    @Tool(description = "Ejecuta lo que el usuario YA confirmó en un mensaje anterior (sí, confirmo, dale). Sin parámetros.")
-    public String confirm(ToolContext context) {
-        return confirmPurchase(userOf(context), ResponseData.of(context));
-    }
+    // Sin tool "confirm": el modelo nunca confirma. Solo el botón (POST /agent/confirm) ejecuta la compra pendiente.
 
     public boolean hasPending(String userName) {
         return pendingPurchases.containsKey(userName);
