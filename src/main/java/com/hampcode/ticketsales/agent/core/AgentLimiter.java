@@ -55,13 +55,22 @@ public class AgentLimiter {
         synchronized (times) {
             while (!times.isEmpty() && now - times.peekFirst() >= HOUR_MS) times.pollFirst();
             if (times.size() >= perHour) {
-                throw new TooManyRequestsException("Llegaste al límite de consultas por hora. Intenta de nuevo más tarde.");
+                long waitMs = HOUR_MS - (now - times.peekFirst());
+                throw new TooManyRequestsException("Llegaste al límite de consultas por hora. " + waitMessage(waitMs));
             }
             long recent = times.stream().filter(time -> now - time < BURST_MS).count();
             if (recent >= burst) {
-                throw new TooManyRequestsException("Demasiadas solicitudes seguidas. Espera unos segundos e intenta de nuevo.");
+                long waitMs = BURST_MS - (now - times.peekLast());
+                throw new TooManyRequestsException("Demasiadas solicitudes seguidas. " + waitMessage(waitMs));
             }
             times.addLast(now);
         }
+    }
+
+    private static String waitMessage(long waitMs) {
+        long seconds = Math.max(1, (waitMs + 999) / 1000);
+        if (seconds < 60) return "Intenta de nuevo en " + seconds + " segundos.";
+        long minutes = (seconds + 59) / 60;
+        return "Intenta de nuevo en " + minutes + " minuto" + (minutes == 1 ? "" : "s") + ".";
     }
 }

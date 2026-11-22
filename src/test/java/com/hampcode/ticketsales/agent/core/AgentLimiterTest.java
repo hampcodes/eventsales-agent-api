@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AgentLimiterTest {
 
@@ -76,5 +77,31 @@ class AgentLimiterTest {
         assertThrows(TooManyRequestsException.class, () -> limiter.checkHistory("3"));
         now.addAndGet(11_000);
         limiter.checkHistory("3");
+    }
+
+    @Test
+    void elMensajeDiceCuantoFaltaParaElLimiteDeHora() {
+        var limiter = new AgentLimiter();
+        var now = new AtomicLong(1_000);
+        limiter.clock = now::get;
+
+        for (int i = 0; i < AgentLimiter.AGENT_CALLS_PER_HOUR; i++) {
+            now.addAndGet(11_000);
+            limiter.runAgent("3", () -> "ok");
+        }
+        now.addAndGet(11_000);
+        var ex = assertThrows(TooManyRequestsException.class, () -> limiter.runAgent("3", () -> "ok"));
+        assertTrue(ex.getMessage().matches(".*Intenta de nuevo en \\d+ minutos?\\..*"), ex.getMessage());
+    }
+
+    @Test
+    void elMensajeDiceCuantoFaltaParaLaRafaga() {
+        var limiter = new AgentLimiter();
+        var now = new AtomicLong(1_000);
+        limiter.clock = now::get;
+
+        for (int i = 0; i < AgentLimiter.BURST_AGENT_CALLS; i++) limiter.runAgent("3", () -> "ok");
+        var ex = assertThrows(TooManyRequestsException.class, () -> limiter.runAgent("3", () -> "ok"));
+        assertTrue(ex.getMessage().matches(".*Intenta de nuevo en \\d+ segundos\\..*"), ex.getMessage());
     }
 }
